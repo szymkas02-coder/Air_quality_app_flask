@@ -38,7 +38,7 @@ VARIABLES = [
     "olive_pollen", "ozone", "particulate_matter_2.5um", "particulate_matter_10um",
     "ragweed_pollen", "sulphur_dioxide",
 ]
-AREA = [56, 7, 47, 26]  # [N, W, S, E]
+AREA = [55, 14, 49, 24]  # [N, W, S, E]
 
 
 # ---------------------------------------------------------------------------
