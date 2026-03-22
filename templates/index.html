@@ -41,20 +41,27 @@
 
     body::before {
       content: '';
-      position: fixed; inset: 0;
+      position: fixed;
+      inset: 0;
       background:
         radial-gradient(ellipse 80% 60% at 20% 10%,  rgba(56,189,248,0.12) 0%, transparent 60%),
         radial-gradient(ellipse 60% 50% at 80% 80%,  rgba(129,140,248,0.10) 0%, transparent 60%),
         radial-gradient(ellipse 40% 40% at 60% 30%,  rgba(34,197,94,0.06)  0%, transparent 50%);
-      pointer-events: none; z-index: 0;
+      pointer-events: none;
+      z-index: 0;
     }
 
     #root {
-      position: relative; z-index: 1; min-height: 100vh;
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
       display: grid;
       grid-template-rows: auto 1fr auto;
       grid-template-columns: 300px 1fr;
-      grid-template-areas: "header header" "sidebar main" "footer footer";
+      grid-template-areas:
+        "header header"
+        "sidebar main"
+        "footer footer";
     }
 
     .glass {
@@ -69,30 +76,46 @@
     header {
       grid-area: header;
       padding: 1.2rem 2rem;
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       border-bottom: 1px solid var(--border);
       background: rgba(8,12,20,0.7);
       backdrop-filter: var(--blur);
-      position: sticky; top: 0; z-index: 100;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
+
     .logo {
-      font-family: var(--font-head); font-weight: 800; font-size: 1.3rem;
+      font-family: var(--font-head);
+      font-weight: 800;
+      font-size: 1.3rem;
       letter-spacing: -0.02em;
       background: linear-gradient(135deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
       background-clip: text;
     }
     .logo span { font-weight: 400; -webkit-text-fill-color: var(--muted); }
 
     #status-badge {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 0.78rem; color: var(--muted);
-      padding: 6px 14px; border-radius: 999px;
-      border: 1px solid var(--border); background: var(--surface);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
     }
+
     .dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: #22c55e; animation: pulse 2s infinite;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: pulse 2s infinite;
     }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
@@ -102,158 +125,218 @@
       padding: 1.5rem 1rem;
       border-right: 1px solid var(--border);
       overflow-y: auto;
-      display: flex; flex-direction: column; gap: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
     }
 
     .panel-title {
-      font-family: var(--font-head); font-size: 0.7rem; font-weight: 700;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--muted); margin-bottom: 0.5rem;
+      font-family: var(--font-head);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
     }
 
     #site-search {
-      width: 100%; background: var(--surface);
-      border: 1px solid var(--border); border-radius: 10px;
-      padding: 8px 12px; color: var(--text);
-      font-family: var(--font-body); font-size: 0.85rem;
-      outline: none; transition: border-color 0.2s;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
     }
     #site-search:focus { border-color: var(--accent); }
     #site-search::placeholder { color: var(--muted); }
 
-    #site-list { list-style: none; display: flex; flex-direction: column; gap: 4px; max-height: 200px; overflow-y: auto; }
+    #site-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
     #site-list li {
-      padding: 7px 12px; border-radius: 8px; cursor: pointer;
-      font-size: 0.85rem; transition: background 0.15s, color 0.15s;
+      padding: 7px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: background 0.15s, color 0.15s;
       border: 1px solid transparent;
     }
     #site-list li:hover { background: var(--surface); }
     #site-list li.active {
       background: rgba(56,189,248,0.12);
-      border-color: rgba(56,189,248,0.3); color: var(--accent);
+      border-color: rgba(56,189,248,0.3);
+      color: var(--accent);
     }
 
     .styled-select {
-      width: 100%; background: var(--surface);
-      border: 1px solid var(--border); border-radius: 10px;
-      padding: 8px 12px; color: var(--text);
-      font-family: var(--font-body); font-size: 0.85rem;
-      outline: none; cursor: pointer;
-      appearance: none; -webkit-appearance: none;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 12px center;
+      background-repeat: no-repeat;
+      background-position: right 12px center;
     }
     .styled-select:focus { border-color: var(--accent); }
     .styled-select option { background: var(--bg2); }
 
+    /* ── Conditions card ── */
     #conditions-card { padding: 1rem; }
-    .conditions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 0.6rem; }
-    .cond-item { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; }
+
+    .conditions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 0.6rem;
+    }
+    .cond-item {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
     .cond-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
     .cond-value { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; line-height: 1.2; }
     .cond-unit  { font-size: 0.65rem; color: var(--muted); font-weight: 400; }
 
     #aqi-badge {
-      margin-top: 0.8rem; padding: 0.9rem 1rem;
-      border-radius: 12px; border: 1px solid var(--border);
-      display: flex; align-items: center; gap: 12px;
+      margin-top: 0.8rem;
+      padding: 0.9rem 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
     .aqi-number { font-family: var(--font-head); font-size: 2.2rem; font-weight: 800; line-height: 1; }
     .aqi-label  { font-size: 0.8rem; color: var(--muted); }
     .aqi-cat    { font-size: 0.9rem; font-weight: 600; }
 
-    #aqi-legend { padding: 0.8rem; display: flex; flex-direction: column; gap: 5px; }
-    .legend-row { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: var(--muted); }
-    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    /* ── AQI legend ── */
+    #aqi-legend {
+      padding: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
     .legend-range { margin-left: auto; font-size: 0.7rem; opacity: 0.6; }
 
     /* ── Main ── */
     main {
-      grid-area: main; padding: 1.5rem;
-      display: flex; flex-direction: column; gap: 1.2rem;
+      grid-area: main;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
       overflow-y: auto;
     }
 
     #map-wrapper {
-      position: relative; border-radius: var(--radius);
-      overflow: hidden; border: 1px solid var(--border); height: 420px;
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      height: 420px;
     }
     #map { height: 100%; width: 100%; }
 
-    /* Canvas overlay rendered by Leaflet — blur gives smooth edges */
-    .heatmap-canvas {
-      filter: blur(4px);
-      transition: opacity 0.4s ease;
-    }
-
-    /* Colorbar */
     #colorbar {
-      position: absolute; bottom: 20px; right: 16px; z-index: 1000;
-      padding: 8px 12px; border-radius: 10px;
-      background: rgba(8,12,20,0.82); backdrop-filter: var(--blur);
+      position: absolute;
+      bottom: 20px; right: 16px;
+      z-index: 1000;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(8,12,20,0.75);
+      backdrop-filter: var(--blur);
       border: 1px solid var(--border);
-      display: flex; flex-direction: column; gap: 4px; min-width: 160px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 150px;
     }
     #colorbar-label { font-size: 0.7rem; color: var(--muted); text-align: center; }
     #colorbar-bar {
       height: 10px; border-radius: 5px;
-      background: linear-gradient(to right,
-        rgba(255,255,178,1),
-        rgba(254,204,92,1),
-        rgba(253,141,60,1),
-        rgba(240,59,32,1),
-        rgba(189,0,38,1));
+      background: linear-gradient(to right, #ffffb2, #fecc5c, #fd8d3c, #f03b20, #bd0026);
     }
     .colorbar-range { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--muted); }
 
-    /* Opacity slider */
-    #opacity-row {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 0.7rem; color: var(--muted);
-    }
-    #opacity-slider {
-      flex: 1; appearance: none; height: 4px;
-      border-radius: 2px; background: var(--border); outline: none; cursor: pointer;
-    }
-    #opacity-slider::-webkit-slider-thumb {
-      appearance: none; width: 12px; height: 12px;
-      border-radius: 50%; background: var(--accent); cursor: pointer;
-    }
-
-    /* Chart */
     #chart-wrapper {
-      border-radius: var(--radius); overflow: hidden;
+      border-radius: var(--radius);
+      overflow: hidden;
       border: 1px solid var(--border);
-      background: var(--surface); backdrop-filter: var(--blur);
+      background: var(--surface);
+      backdrop-filter: var(--blur);
       padding: 1rem 1rem 0.5rem;
     }
     #chart-title {
-      font-family: var(--font-head); font-size: 0.85rem; font-weight: 700;
-      color: var(--muted); margin-bottom: 0.5rem;
-      text-transform: uppercase; letter-spacing: 0.08em;
+      font-family: var(--font-head);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
     #forecast-chart { width: 100%; height: 280px; }
 
-    /* Footer */
+    /* ── Footer ── */
     footer {
-      grid-area: footer; text-align: center;
-      padding: 0.8rem; font-size: 0.72rem; color: var(--muted);
+      grid-area: footer;
+      text-align: center;
+      padding: 0.8rem;
+      font-size: 0.72rem;
+      color: var(--muted);
       border-top: 1px solid var(--border);
     }
     footer a { color: var(--accent); text-decoration: none; }
 
-    /* Loading */
+    /* ── Loading ── */
     #loading {
-      position: fixed; inset: 0; background: var(--bg);
+      position: fixed; inset: 0;
+      background: var(--bg);
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      z-index: 9999; gap: 1rem; transition: opacity 0.5s;
+      z-index: 9999; gap: 1rem;
+      transition: opacity 0.5s;
     }
     #loading.hidden { opacity: 0; pointer-events: none; }
     .spinner {
       width: 48px; height: 48px;
-      border: 3px solid var(--border); border-top-color: var(--accent);
-      border-radius: 50%; animation: spin 0.8s linear infinite;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { font-family: var(--font-head); font-size: 0.9rem; color: var(--muted); }
@@ -263,7 +346,10 @@
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
 
     @media (max-width: 768px) {
-      #root { grid-template-columns: 1fr; grid-template-areas: "header" "main" "sidebar" "footer"; }
+      #root {
+        grid-template-columns: 1fr;
+        grid-template-areas: "header" "main" "sidebar" "footer";
+      }
       aside { border-right: none; border-top: 1px solid var(--border); }
       #map-wrapper { height: 300px; }
     }
@@ -277,12 +363,17 @@
 </div>
 
 <div id="root">
+
   <header>
     <div class="logo">AirWatch <span>Poland</span></div>
-    <div id="status-badge"><div class="dot"></div><span id="status-date">–</span></div>
+    <div id="status-badge">
+      <div class="dot"></div>
+      <span id="status-date">–</span>
+    </div>
   </header>
 
   <aside>
+
     <div>
       <div class="panel-title">Pollutant</div>
       <select id="pollutant-select" class="styled-select" onchange="onPollutantChange()"></select>
@@ -317,19 +408,19 @@
       <div class="legend-row"><div class="legend-dot" style="background:#a855f7"></div>Very Unhealthy<span class="legend-range">201–300</span></div>
       <div class="legend-row"><div class="legend-dot" style="background:#7f1d1d"></div>Hazardous<span class="legend-range">301+</span></div>
     </div>
+
   </aside>
 
   <main>
+
     <div id="map-wrapper">
       <div id="map"></div>
       <div id="colorbar">
         <div id="colorbar-label">–</div>
         <div id="colorbar-bar"></div>
-        <div class="colorbar-range"><span id="cb-min">0</span><span id="cb-max">1</span></div>
-        <div id="opacity-row">
-          <span>opacity</span>
-          <input id="opacity-slider" type="range" min="10" max="90" value="70"
-                 oninput="setOverlayOpacity(this.value)" />
+        <div class="colorbar-range">
+          <span id="cb-min">0</span>
+          <span id="cb-max">1</span>
         </div>
       </div>
     </div>
@@ -338,6 +429,7 @@
       <div id="chart-title">97-hour Forecast</div>
       <div id="forecast-chart"></div>
     </div>
+
   </main>
 
   <footer>
@@ -345,182 +437,75 @@
     &nbsp;·&nbsp;
     Licence: <a href="https://apps.ecmwf.int/datasets/licences/copernicus/" target="_blank">Copernicus Licence</a>
   </footer>
+
 </div>
 
 <script>
-// ── Colour ramp: YlOrRd (matches matplotlib) ──────────────────────────────────
-const RAMP = [
-  [255,255,178], [254,217,118], [254,178,76],
-  [253,141,60],  [240,59,32],   [189,0,38],
-];
-
-function sampleRamp(t) {
-  // t in [0,1] → interpolated RGB
-  const n   = RAMP.length - 1;
-  const idx = Math.min(t * n, n - 0.001);
-  const lo  = Math.floor(idx);
-  const hi  = lo + 1;
-  const f   = idx - lo;
-  return [
-    Math.round(RAMP[lo][0] + (RAMP[hi][0] - RAMP[lo][0]) * f),
-    Math.round(RAMP[lo][1] + (RAMP[hi][1] - RAMP[lo][1]) * f),
-    Math.round(RAMP[lo][2] + (RAMP[hi][2] - RAMP[lo][2]) * f),
-  ];
-}
-
-// ── AQI thresholds ────────────────────────────────────────────────────────────
+// ── AQI thresholds per pollutant (µg/m³) ─────────────────────────────────────
+// Based on WHO / EU Air Quality Index breakpoints
 const AQI_THRESHOLDS = {
-  "particulate_matter_2p5um": [
-    {label:"Good",           color:"#22c55e", max:10},
-    {label:"Fair",           color:"#eab308", max:20},
-    {label:"Moderate",       color:"#f97316", max:25},
-    {label:"Poor",           color:"#ef4444", max:50},
-    {label:"Very Poor",      color:"#a855f7", max:75},
-    {label:"Extremely Poor", color:"#7f1d1d", max:Infinity},
+  particulate_matter_2p5um: [
+    { label: "Good",            color: "#22c55e", max: 10   },
+    { label: "Fair",            color: "#eab308", max: 20   },
+    { label: "Moderate",        color: "#f97316", max: 25   },
+    { label: "Poor",            color: "#ef4444", max: 50   },
+    { label: "Very Poor",       color: "#a855f7", max: 75   },
+    { label: "Extremely Poor",  color: "#7f1d1d", max: Infinity },
   ],
-  "particulate_matter_10um": [
-    {label:"Good",           color:"#22c55e", max:20},
-    {label:"Fair",           color:"#eab308", max:40},
-    {label:"Moderate",       color:"#f97316", max:50},
-    {label:"Poor",           color:"#ef4444", max:100},
-    {label:"Very Poor",      color:"#a855f7", max:150},
-    {label:"Extremely Poor", color:"#7f1d1d", max:Infinity},
+  particulate_matter_10um: [
+    { label: "Good",            color: "#22c55e", max: 20   },
+    { label: "Fair",            color: "#eab308", max: 40   },
+    { label: "Moderate",        color: "#f97316", max: 50   },
+    { label: "Poor",            color: "#ef4444", max: 100  },
+    { label: "Very Poor",       color: "#a855f7", max: 150  },
+    { label: "Extremely Poor",  color: "#7f1d1d", max: Infinity },
   ],
-  "nitrogen_dioxide": [
-    {label:"Good",           color:"#22c55e", max:40},
-    {label:"Fair",           color:"#eab308", max:90},
-    {label:"Moderate",       color:"#f97316", max:120},
-    {label:"Poor",           color:"#ef4444", max:230},
-    {label:"Very Poor",      color:"#a855f7", max:340},
-    {label:"Extremely Poor", color:"#7f1d1d", max:Infinity},
+  nitrogen_dioxide: [
+    { label: "Good",            color: "#22c55e", max: 40   },
+    { label: "Fair",            color: "#eab308", max: 90   },
+    { label: "Moderate",        color: "#f97316", max: 120  },
+    { label: "Poor",            color: "#ef4444", max: 230  },
+    { label: "Very Poor",       color: "#a855f7", max: 340  },
+    { label: "Extremely Poor",  color: "#7f1d1d", max: Infinity },
   ],
-  "ozone": [
-    {label:"Good",           color:"#22c55e", max:50},
-    {label:"Fair",           color:"#eab308", max:100},
-    {label:"Moderate",       color:"#f97316", max:130},
-    {label:"Poor",           color:"#ef4444", max:240},
-    {label:"Very Poor",      color:"#a855f7", max:380},
-    {label:"Extremely Poor", color:"#7f1d1d", max:Infinity},
+  ozone: [
+    { label: "Good",            color: "#22c55e", max: 50   },
+    { label: "Fair",            color: "#eab308", max: 100  },
+    { label: "Moderate",        color: "#f97316", max: 130  },
+    { label: "Poor",            color: "#ef4444", max: 240  },
+    { label: "Very Poor",       color: "#a855f7", max: 380  },
+    { label: "Extremely Poor",  color: "#7f1d1d", max: Infinity },
   ],
-  "sulphur_dioxide": [
-    {label:"Good",           color:"#22c55e", max:100},
-    {label:"Fair",           color:"#eab308", max:200},
-    {label:"Moderate",       color:"#f97316", max:350},
-    {label:"Poor",           color:"#ef4444", max:500},
-    {label:"Very Poor",      color:"#a855f7", max:750},
-    {label:"Extremely Poor", color:"#7f1d1d", max:Infinity},
+  sulphur_dioxide: [
+    { label: "Good",            color: "#22c55e", max: 100  },
+    { label: "Fair",            color: "#eab308", max: 200  },
+    { label: "Moderate",        color: "#f97316", max: 350  },
+    { label: "Poor",            color: "#ef4444", max: 500  },
+    { label: "Very Poor",       color: "#a855f7", max: 750  },
+    { label: "Extremely Poor",  color: "#7f1d1d", max: Infinity },
   ],
 };
 
-function getThresholds(id) {
-  return AQI_THRESHOLDS[id.replace(/\./g, '')] || null;
+// Normalise pollutant id to match threshold keys (dots → p)
+function thresholdKey(id) {
+  return id.replace(/\./g, 'p');
 }
 
-// ── Canvas Leaflet Layer ──────────────────────────────────────────────────────
-const CanvasLayer = L.Layer.extend({
-  initialize(gridData, options) {
-    this._data    = gridData;
-    this._opacity = (options && options.opacity) || 0.70;
-    this._canvas  = null;
-  },
-
-  onAdd(map) {
-    this._map = map;
-    if (!this._canvas) {
-      this._canvas = document.createElement("canvas");
-      this._canvas.classList.add("heatmap-canvas");
-      this._canvas.style.position = "absolute";
-      this._canvas.style.pointerEvents = "none";
-      this._canvas.style.zIndex = "400";
-    }
-    map.getPanes().overlayPane.appendChild(this._canvas);
-    map.on("moveend zoomend", this._redraw, this);
-    this._redraw();
-  },
-
-  onRemove(map) {
-    map.getPanes().overlayPane.removeChild(this._canvas);
-    map.off("moveend zoomend", this._redraw, this);
-  },
-
-  setOpacity(v) {
-    this._opacity = v / 100;
-    if (this._canvas) this._canvas.style.opacity = this._opacity;
-  },
-
-  _redraw() {
-    const map    = this._map;
-    const d      = this._data;
-    const bounds = map.getBounds();
-    const size   = map.getSize();
-
-    this._canvas.width  = size.x;
-    this._canvas.height = size.y;
-    this._canvas.style.opacity  = this._opacity;
-    this._canvas.style.left     = "0px";
-    this._canvas.style.top      = "0px";
-    this._canvas.style.width    = size.x + "px";
-    this._canvas.style.height   = size.y + "px";
-
-    const ctx    = this._canvas.getContext("2d");
-    ctx.clearRect(0, 0, size.x, size.y);
-
-    const vmin   = d.vmin;
-    const vrange = d.vmax - d.vmin || 1;
-    const nrows  = d.nrows;
-    const ncols  = d.ncols;
-    const lats   = d.lats;
-    const lons   = d.lons;
-
-    // Compute pixel size of one cell (approximate, use first cell)
-    const cellLatDeg = Math.abs(lats[1] - lats[0]);
-    const cellLonDeg = Math.abs(lons[1] - lons[0]);
-
-    for (let r = 0; r < nrows; r++) {
-      for (let c = 0; c < ncols; c++) {
-        const val = d.values[r * ncols + c];
-        if (val === null) continue;
-
-        // Centre of cell
-        const lat = lats[r];
-        const lon = lons[c];
-
-        // Skip if outside visible bounds (with margin)
-        if (lat < bounds.getSouth() - cellLatDeg) continue;
-        if (lat > bounds.getNorth() + cellLatDeg) continue;
-        if (lon < bounds.getWest()  - cellLonDeg) continue;
-        if (lon > bounds.getEast()  + cellLonDeg) continue;
-
-        // Pixel positions of cell corners
-        const pTL = map.latLngToContainerPoint(
-          L.latLng(lat + cellLatDeg / 2, lon - cellLonDeg / 2)
-        );
-        const pBR = map.latLngToContainerPoint(
-          L.latLng(lat - cellLatDeg / 2, lon + cellLonDeg / 2)
-        );
-
-        const px = Math.round(pTL.x);
-        const py = Math.round(pTL.y);
-        const pw = Math.max(1, Math.round(pBR.x - pTL.x));
-        const ph = Math.max(1, Math.round(pBR.y - pTL.y));
-
-        const t   = Math.max(0, Math.min(1, (val - vmin) / vrange));
-        const rgb = sampleRamp(t);
-
-        ctx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},1)`;
-        ctx.fillRect(px, py, pw, ph);
-      }
-    }
-  },
-});
+function getThresholds(pollutantId) {
+  return AQI_THRESHOLDS[thresholdKey(pollutantId)] || null;
+}
 
 // ── State ─────────────────────────────────────────────────────────────────────
 const state = {
-  sites: [], pollutants: [], times: [],
-  site: "Warszawa", pollutant: null, timeIndex: 0,
+  sites:      [],
+  pollutants: [],
+  times:      [],
+  site:       "Warszawa",
+  pollutant:  null,
+  timeIndex:  0,
 };
 
-let map, canvasLayer, siteMarker;
+let map, overlayLayer, siteMarker;
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 async function init() {
@@ -534,9 +519,11 @@ async function init() {
   renderSiteList("");
   selectSite(state.site, false);
   await updateAll();
+
   document.getElementById("loading").classList.add("hidden");
 }
 
+// ── Map ───────────────────────────────────────────────────────────────────────
 function initMap() {
   map = L.map("map", { zoomControl: true }).setView([52.0, 19.5], 6);
   L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
@@ -549,33 +536,33 @@ function initMap() {
 async function loadStatus() {
   const d = await fetch("/api/status").then(r => r.json());
   if (d.date) {
-    const upd = d.downloaded_at_utc ? " · " + d.downloaded_at_utc.slice(0,16) + " UTC" : "";
+    const upd = d.downloaded_at_utc ? " · " + d.downloaded_at_utc.slice(0, 16) + " UTC" : "";
     document.getElementById("status-date").textContent = `Forecast ${d.date}${upd}`;
   }
 }
+
 async function loadSites()      { state.sites      = await fetch("/api/sites").then(r => r.json()); }
 async function loadPollutants() { state.pollutants = await fetch("/api/pollutants").then(r => r.json()); }
 async function loadTimes() {
   const d = await fetch("/api/times").then(r => r.json());
-  state.times     = d.times;
-  state.timeIndex = d.default_index;
+  state.times      = d.times;
+  state.timeIndex  = d.default_index;
 }
 
-// ── Controls ──────────────────────────────────────────────────────────────────
+// ── Render controls ───────────────────────────────────────────────────────────
 function renderPollutantSelect() {
-  document.getElementById("pollutant-select").innerHTML =
-    state.pollutants.map(p =>
-      `<option value="${p.id}" ${p.id === state.pollutant ? "selected" : ""}>${p.label}</option>`
-    ).join("");
+  const sel = document.getElementById("pollutant-select");
+  sel.innerHTML = state.pollutants.map(p =>
+    `<option value="${p.id}" ${p.id === state.pollutant ? "selected" : ""}>${p.label}</option>`
+  ).join("");
 }
 
 function renderSiteList(filter) {
-  const f  = filter.toLowerCase();
   const ul = document.getElementById("site-list");
+  const f  = filter.toLowerCase();
   const filtered = state.sites.filter(s => s.name.toLowerCase().includes(f)).slice(0, 80);
   ul.innerHTML = filtered.map(s =>
-    `<li class="${s.name === state.site ? "active" : ""}"
-         onclick="selectSite('${s.name.replace(/'/g,"\\'")}')">
+    `<li class="${s.name === state.site ? "active" : ""}" onclick="selectSite('${s.name.replace(/'/g,"\\'")}')">
       ${s.name}
     </li>`
   ).join("");
@@ -583,17 +570,20 @@ function renderSiteList(filter) {
 
 function filterSites(val) { renderSiteList(val); }
 
+// ── User actions ──────────────────────────────────────────────────────────────
 function selectSite(name, update = true) {
   state.site = name;
   renderSiteList(document.getElementById("site-search").value);
+
   const site = state.sites.find(s => s.name === name);
   if (site) {
     if (siteMarker) map.removeLayer(siteMarker);
     siteMarker = L.circleMarker([site.lat, site.lon], {
-      radius: 8, fillColor: "#38bdf8", color: "#fff", weight: 2, fillOpacity: 0.95,
+      radius: 8, fillColor: "#38bdf8", color: "#fff", weight: 2, fillOpacity: 0.9,
     }).addTo(map).bindPopup(`<b>${name}</b>`);
     map.panTo([site.lat, site.lon]);
   }
+
   if (update) updateAll();
 }
 
@@ -602,30 +592,20 @@ function onPollutantChange() {
   updateAll();
 }
 
-function setOverlayOpacity(val) {
-  if (canvasLayer) canvasLayer.setOpacity(val);
-}
-
-// ── Updates ───────────────────────────────────────────────────────────────────
+// ── Update ────────────────────────────────────────────────────────────────────
 async function updateAll() {
   await Promise.all([updateMapOverlay(), updateForecastChart(), updateCurrentConditions()]);
 }
 
 async function updateMapOverlay() {
   if (!state.pollutant) return;
-
-  const r = await fetch(`/api/mapdata/${state.pollutant}/${state.timeIndex}`);
+  const r = await fetch(`/api/map/${state.pollutant}/${state.timeIndex}`);
   if (!r.ok) return;
   const d = await r.json();
 
-  // Remove old layer
-  if (canvasLayer) { map.removeLayer(canvasLayer); canvasLayer = null; }
+  if (overlayLayer) map.removeLayer(overlayLayer);
+  overlayLayer = L.imageOverlay(d.image, d.bounds, { opacity: 0.7 }).addTo(map);
 
-  const opacity = document.getElementById("opacity-slider").value;
-  canvasLayer = new CanvasLayer(d, { opacity });
-  canvasLayer.addTo(map);
-
-  // Colorbar
   const info = state.pollutants.find(p => p.id === state.pollutant);
   document.getElementById("colorbar-label").textContent =
     `${info?.species || state.pollutant} (${d.units})`;
@@ -635,7 +615,6 @@ async function updateMapOverlay() {
 
 async function updateForecastChart() {
   if (!state.pollutant || !state.site) return;
-
   const r = await fetch(`/api/forecast/${encodeURIComponent(state.site)}/${state.pollutant}`);
   if (!r.ok) return;
   const d = await r.json();
@@ -645,58 +624,86 @@ async function updateForecastChart() {
   const units  = d.units || "";
   const thresh = getThresholds(state.pollutant);
 
+  // Main trace
   const trace = {
     x: d.times, y: d.values,
     type: "scatter", mode: "lines",
+    name: label,
     line: { color: "#38bdf8", width: 2.5, shape: "spline" },
-    fill: "tozeroy", fillcolor: "rgba(56,189,248,0.08)",
+    fill: "tozeroy",
+    fillcolor: "rgba(56,189,248,0.08)",
     hovertemplate: `%{x}<br><b>%{y:.3f}</b> ${units}<extra></extra>`,
   };
 
-  const shapes = [], annotations = [];
-  const yMax = Math.max(...d.values.filter(v => v != null && !isNaN(v)));
+  // AQI threshold horizontal lines
+  const shapes = [];
+  const annotations = [];
 
   if (thresh) {
+    const yMax = Math.max(...d.values.filter(v => v != null));
+
     thresh.forEach(band => {
-      if (band.max === Infinity || band.max > yMax * 2.5) return;
+      if (band.max === Infinity) return;
+      // Only draw if threshold is within visible range (a bit above zero)
+      if (band.max > yMax * 2) return;
+
       shapes.push({
         type: "line",
         x0: d.times[0], x1: d.times[d.times.length - 1],
         y0: band.max, y1: band.max,
         line: { color: band.color, width: 1, dash: "dot" },
       });
+
       annotations.push({
-        x: d.times[d.times.length - 1], y: band.max,
-        xanchor: "right", yanchor: "bottom",
-        text: band.label, showarrow: false,
+        x: d.times[d.times.length - 1],
+        y: band.max,
+        xanchor: "right",
+        yanchor: "bottom",
+        text: band.label,
+        showarrow: false,
         font: { color: band.color, size: 9, family: "DM Sans" },
-        bgcolor: "rgba(8,12,20,0.7)", borderpad: 2,
+        bgcolor: "rgba(8,12,20,0.7)",
+        borderpad: 2,
       });
     });
   }
 
-  // "Now" line
+  // "Now" vertical marker
   const nowTime = state.times[state.timeIndex];
   if (nowTime) {
     shapes.push({
-      type: "line", x0: nowTime, x1: nowTime, y0: 0, y1: 1, yref: "paper",
+      type: "line",
+      x0: nowTime, x1: nowTime, y0: 0, y1: 1, yref: "paper",
       line: { color: "#818cf8", width: 1.5, dash: "dot" },
     });
     annotations.push({
       x: nowTime, y: 1, yref: "paper",
       text: "now", showarrow: false,
-      font: { color: "#818cf8", size: 9 }, yshift: 6,
+      font: { color: "#818cf8", size: 9 },
+      yshift: 6,
     });
   }
 
   const layout = {
-    paper_bgcolor: "transparent", plot_bgcolor: "transparent",
+    paper_bgcolor: "transparent",
+    plot_bgcolor:  "transparent",
     font: { family: "DM Sans, sans-serif", color: "#94a3b8", size: 11 },
     margin: { t: 10, r: 120, b: 50, l: 55 },
-    xaxis: { gridcolor: "rgba(255,255,255,0.05)", linecolor: "rgba(255,255,255,0.08)", tickfont: { size: 10 } },
-    yaxis: { gridcolor: "rgba(255,255,255,0.05)", linecolor: "rgba(255,255,255,0.08)",
-             title: { text: units, font: { size: 10 } }, rangemode: "nonnegative" },
-    shapes, annotations, showlegend: false, hovermode: "x unified",
+    xaxis: {
+      gridcolor: "rgba(255,255,255,0.05)",
+      linecolor: "rgba(255,255,255,0.08)",
+      tickfont: { size: 10 },
+    },
+    yaxis: {
+      gridcolor: "rgba(255,255,255,0.05)",
+      linecolor: "rgba(255,255,255,0.08)",
+      title: { text: units, font: { size: 10 } },
+      rangemode: "nonnegative",
+    },
+    shapes,
+    annotations,
+    showlegend: false,
+    hovermode: "x unified",
   };
 
   document.getElementById("chart-title").textContent =
@@ -714,7 +721,7 @@ async function updateCurrentConditions() {
   const grid = document.getElementById("conditions-grid");
   const entries = Object.entries(d.pollutants);
   grid.innerHTML = entries.length === 0
-    ? `<div style="color:var(--muted);font-size:0.8rem">No data</div>`
+    ? `<div style="color:var(--muted);font-size:0.8rem">No data available</div>`
     : entries.map(([lbl, info]) => `
         <div class="cond-item">
           <div class="cond-label">${lbl}</div>
@@ -723,7 +730,7 @@ async function updateCurrentConditions() {
 
   const badge = document.getElementById("aqi-badge");
   if (d.aqi) {
-    badge.style.display     = "flex";
+    badge.style.display = "flex";
     badge.style.borderColor = d.aqi.color + "55";
     badge.style.background  = d.aqi.color + "18";
     document.getElementById("aqi-number").textContent = d.aqi.value;
