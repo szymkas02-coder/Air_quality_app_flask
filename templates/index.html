@@ -5,33 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Air Quality Forecast · Poland</title>
 
-  <!-- Leaflet -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-  <!-- Plotly -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.32.0/plotly.min.js"></script>
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
 
   <style>
-    /* ── Reset & base ───────────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #080c14;
-      --bg2:       #0d1220;
-      --surface:   rgba(255,255,255,0.05);
-      --border:    rgba(255,255,255,0.10);
-      --accent:    #38bdf8;
-      --accent2:   #818cf8;
-      --good:      #22c55e;
-      --moderate:  #eab308;
-      --bad:       #ef4444;
-      --text:      #e2e8f0;
-      --muted:     #64748b;
-      --radius:    16px;
-      --blur:      blur(18px);
+      --bg:      #080c14;
+      --bg2:     #0d1220;
+      --surface: rgba(255,255,255,0.05);
+      --border:  rgba(255,255,255,0.10);
+      --accent:  #38bdf8;
+      --accent2: #818cf8;
+      --text:    #e2e8f0;
+      --muted:   #64748b;
+      --radius:  16px;
+      --blur:    blur(18px);
       --font-head: 'Syne', sans-serif;
       --font-body: 'DM Sans', sans-serif;
     }
@@ -46,7 +39,6 @@
       overflow-x: hidden;
     }
 
-    /* ── Animated mesh background ───────────────────────────────────────── */
     body::before {
       content: '';
       position: fixed;
@@ -59,7 +51,6 @@
       z-index: 0;
     }
 
-    /* ── Layout ─────────────────────────────────────────────────────────── */
     #root {
       position: relative;
       z-index: 1;
@@ -73,7 +64,6 @@
         "footer footer";
     }
 
-    /* ── Glass mixin ─────────────────────────────────────────────────────── */
     .glass {
       background: var(--surface);
       backdrop-filter: var(--blur);
@@ -82,7 +72,7 @@
       border-radius: var(--radius);
     }
 
-    /* ── Header ─────────────────────────────────────────────────────────── */
+    /* ── Header ── */
     header {
       grid-area: header;
       padding: 1.2rem 2rem;
@@ -107,8 +97,7 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-
-    .logo span { font-weight: 400; opacity: 0.6; -webkit-text-fill-color: var(--muted); }
+    .logo span { font-weight: 400; -webkit-text-fill-color: var(--muted); }
 
     #status-badge {
       display: flex;
@@ -125,31 +114,12 @@
     .dot {
       width: 7px; height: 7px;
       border-radius: 50%;
-      background: var(--good);
+      background: #22c55e;
       animation: pulse 2s infinite;
     }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.3; }
-    }
-
-    #refresh-btn {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border: none;
-      color: #fff;
-      font-family: var(--font-body);
-      font-size: 0.78rem;
-      font-weight: 500;
-      padding: 6px 16px;
-      border-radius: 999px;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.15s;
-    }
-    #refresh-btn:hover { opacity: 0.85; transform: translateY(-1px); }
-    #refresh-btn:active { transform: translateY(0); }
-
-    /* ── Sidebar ─────────────────────────────────────────────────────────── */
+    /* ── Sidebar ── */
     aside {
       grid-area: sidebar;
       padding: 1.5rem 1rem;
@@ -170,7 +140,6 @@
       margin-bottom: 0.5rem;
     }
 
-    /* Search */
     #site-search {
       width: 100%;
       background: var(--surface);
@@ -186,7 +155,6 @@
     #site-search:focus { border-color: var(--accent); }
     #site-search::placeholder { color: var(--muted); }
 
-    /* Site list */
     #site-list {
       list-style: none;
       display: flex;
@@ -195,7 +163,6 @@
       max-height: 200px;
       overflow-y: auto;
     }
-
     #site-list li {
       padding: 7px 12px;
       border-radius: 8px;
@@ -211,7 +178,6 @@
       color: var(--accent);
     }
 
-    /* Select dropdowns */
     .styled-select {
       width: 100%;
       background: var(--surface);
@@ -232,10 +198,8 @@
     .styled-select:focus { border-color: var(--accent); }
     .styled-select option { background: var(--bg2); }
 
-    /* Current conditions card */
-    #conditions-card {
-      padding: 1rem;
-    }
+    /* ── Conditions card ── */
+    #conditions-card { padding: 1rem; }
 
     .conditions-grid {
       display: grid;
@@ -243,36 +207,16 @@
       gap: 8px;
       margin-top: 0.6rem;
     }
-
     .cond-item {
       background: rgba(255,255,255,0.04);
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 8px 10px;
     }
+    .cond-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .cond-value { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; line-height: 1.2; }
+    .cond-unit  { font-size: 0.65rem; color: var(--muted); font-weight: 400; }
 
-    .cond-label {
-      font-size: 0.68rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .cond-value {
-      font-family: var(--font-head);
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.2;
-    }
-
-    .cond-unit {
-      font-size: 0.65rem;
-      color: var(--muted);
-      font-weight: 400;
-    }
-
-    /* AQI badge */
     #aqi-badge {
       margin-top: 0.8rem;
       padding: 0.9rem 1rem;
@@ -282,18 +226,32 @@
       align-items: center;
       gap: 12px;
     }
+    .aqi-number { font-family: var(--font-head); font-size: 2.2rem; font-weight: 800; line-height: 1; }
+    .aqi-label  { font-size: 0.8rem; color: var(--muted); }
+    .aqi-cat    { font-size: 0.9rem; font-weight: 600; }
 
-    .aqi-number {
-      font-family: var(--font-head);
-      font-size: 2.2rem;
-      font-weight: 800;
-      line-height: 1;
+    /* ── AQI legend ── */
+    #aqi-legend {
+      padding: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
     }
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .legend-range { margin-left: auto; font-size: 0.7rem; opacity: 0.6; }
 
-    .aqi-label { font-size: 0.8rem; color: var(--muted); }
-    .aqi-cat   { font-size: 0.9rem; font-weight: 600; }
-
-    /* ── Main content ────────────────────────────────────────────────────── */
+    /* ── Main ── */
     main {
       grid-area: main;
       padding: 1.5rem;
@@ -303,7 +261,6 @@
       overflow-y: auto;
     }
 
-    /* Map */
     #map-wrapper {
       position: relative;
       border-radius: var(--radius);
@@ -311,14 +268,11 @@
       border: 1px solid var(--border);
       height: 420px;
     }
-
     #map { height: 100%; width: 100%; }
 
-    /* Colorbar */
     #colorbar {
       position: absolute;
-      bottom: 20px;
-      right: 16px;
+      bottom: 20px; right: 16px;
       z-index: 1000;
       padding: 8px 12px;
       border-radius: 10px;
@@ -330,23 +284,13 @@
       gap: 4px;
       min-width: 150px;
     }
-
     #colorbar-label { font-size: 0.7rem; color: var(--muted); text-align: center; }
-
     #colorbar-bar {
-      height: 10px;
-      border-radius: 5px;
+      height: 10px; border-radius: 5px;
       background: linear-gradient(to right, #ffffb2, #fecc5c, #fd8d3c, #f03b20, #bd0026);
     }
+    .colorbar-range { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--muted); }
 
-    .colorbar-range {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.65rem;
-      color: var(--muted);
-    }
-
-    /* Chart */
     #chart-wrapper {
       border-radius: var(--radius);
       overflow: hidden;
@@ -355,7 +299,6 @@
       backdrop-filter: var(--blur);
       padding: 1rem 1rem 0.5rem;
     }
-
     #chart-title {
       font-family: var(--font-head);
       font-size: 0.85rem;
@@ -365,10 +308,9 @@
       text-transform: uppercase;
       letter-spacing: 0.08em;
     }
+    #forecast-chart { width: 100%; height: 280px; }
 
-    #forecast-chart { width: 100%; height: 260px; }
-
-    /* ── Footer ──────────────────────────────────────────────────────────── */
+    /* ── Footer ── */
     footer {
       grid-area: footer;
       text-align: center;
@@ -377,25 +319,18 @@
       color: var(--muted);
       border-top: 1px solid var(--border);
     }
-
     footer a { color: var(--accent); text-decoration: none; }
 
-    /* ── Loading overlay ─────────────────────────────────────────────────── */
+    /* ── Loading ── */
     #loading {
-      position: fixed;
-      inset: 0;
+      position: fixed; inset: 0;
       background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      gap: 1rem;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 9999; gap: 1rem;
       transition: opacity 0.5s;
     }
-
     #loading.hidden { opacity: 0; pointer-events: none; }
-
     .spinner {
       width: 48px; height: 48px;
       border: 3px solid var(--border);
@@ -403,21 +338,13 @@
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
-
     @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-family: var(--font-head); font-size: 0.9rem; color: var(--muted); }
 
-    .loading-text {
-      font-family: var(--font-head);
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
-
-    /* ── Scrollbar ───────────────────────────────────────────────────────── */
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
 
-    /* ── Responsive ──────────────────────────────────────────────────────── */
     @media (max-width: 768px) {
       #root {
         grid-template-columns: 1fr;
@@ -430,7 +357,6 @@
 </head>
 
 <body>
-<!-- Loading screen -->
 <div id="loading">
   <div class="spinner"></div>
   <div class="loading-text">Loading CAMS forecast data…</div>
@@ -438,27 +364,19 @@
 
 <div id="root">
 
-  <!-- ── Header ── -->
   <header>
     <div class="logo">AirWatch <span>Poland</span></div>
     <div id="status-badge">
       <div class="dot"></div>
       <span id="status-date">–</span>
     </div>
-    <button id="refresh-btn" onclick="refreshData()">↺ Refresh</button>
   </header>
 
-  <!-- ── Sidebar ── -->
   <aside>
 
     <div>
       <div class="panel-title">Pollutant</div>
       <select id="pollutant-select" class="styled-select" onchange="onPollutantChange()"></select>
-    </div>
-
-    <div>
-      <div class="panel-title">Forecast Time</div>
-      <select id="time-select" class="styled-select" onchange="onTimeChange()"></select>
     </div>
 
     <div>
@@ -481,9 +399,18 @@
       </div>
     </div>
 
+    <div id="aqi-legend" class="glass">
+      <div class="panel-title">AQI Scale</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#22c55e"></div>Good<span class="legend-range">0–50</span></div>
+      <div class="legend-row"><div class="legend-dot" style="background:#eab308"></div>Moderate<span class="legend-range">51–100</span></div>
+      <div class="legend-row"><div class="legend-dot" style="background:#f97316"></div>Sensitive Groups<span class="legend-range">101–150</span></div>
+      <div class="legend-row"><div class="legend-dot" style="background:#ef4444"></div>Unhealthy<span class="legend-range">151–200</span></div>
+      <div class="legend-row"><div class="legend-dot" style="background:#a855f7"></div>Very Unhealthy<span class="legend-range">201–300</span></div>
+      <div class="legend-row"><div class="legend-dot" style="background:#7f1d1d"></div>Hazardous<span class="legend-range">301+</span></div>
+    </div>
+
   </aside>
 
-  <!-- ── Main ── -->
   <main>
 
     <div id="map-wrapper">
@@ -505,7 +432,6 @@
 
   </main>
 
-  <!-- ── Footer ── -->
   <footer>
     Data: <a href="https://atmosphere.copernicus.eu/" target="_blank">CAMS European Air Quality Forecasts</a>
     &nbsp;·&nbsp;
@@ -515,73 +441,112 @@
 </div>
 
 <script>
-// ── State ────────────────────────────────────────────────────────────────────
+// ── AQI thresholds per pollutant (µg/m³) ─────────────────────────────────────
+// Based on WHO / EU Air Quality Index breakpoints
+const AQI_THRESHOLDS = {
+  particulate_matter_2p5um: [
+    { label: "Good",            color: "#22c55e", max: 10   },
+    { label: "Fair",            color: "#eab308", max: 20   },
+    { label: "Moderate",        color: "#f97316", max: 25   },
+    { label: "Poor",            color: "#ef4444", max: 50   },
+    { label: "Very Poor",       color: "#a855f7", max: 75   },
+    { label: "Extremely Poor",  color: "#7f1d1d", max: Infinity },
+  ],
+  particulate_matter_10um: [
+    { label: "Good",            color: "#22c55e", max: 20   },
+    { label: "Fair",            color: "#eab308", max: 40   },
+    { label: "Moderate",        color: "#f97316", max: 50   },
+    { label: "Poor",            color: "#ef4444", max: 100  },
+    { label: "Very Poor",       color: "#a855f7", max: 150  },
+    { label: "Extremely Poor",  color: "#7f1d1d", max: Infinity },
+  ],
+  nitrogen_dioxide: [
+    { label: "Good",            color: "#22c55e", max: 40   },
+    { label: "Fair",            color: "#eab308", max: 90   },
+    { label: "Moderate",        color: "#f97316", max: 120  },
+    { label: "Poor",            color: "#ef4444", max: 230  },
+    { label: "Very Poor",       color: "#a855f7", max: 340  },
+    { label: "Extremely Poor",  color: "#7f1d1d", max: Infinity },
+  ],
+  ozone: [
+    { label: "Good",            color: "#22c55e", max: 50   },
+    { label: "Fair",            color: "#eab308", max: 100  },
+    { label: "Moderate",        color: "#f97316", max: 130  },
+    { label: "Poor",            color: "#ef4444", max: 240  },
+    { label: "Very Poor",       color: "#a855f7", max: 380  },
+    { label: "Extremely Poor",  color: "#7f1d1d", max: Infinity },
+  ],
+  sulphur_dioxide: [
+    { label: "Good",            color: "#22c55e", max: 100  },
+    { label: "Fair",            color: "#eab308", max: 200  },
+    { label: "Moderate",        color: "#f97316", max: 350  },
+    { label: "Poor",            color: "#ef4444", max: 500  },
+    { label: "Very Poor",       color: "#a855f7", max: 750  },
+    { label: "Extremely Poor",  color: "#7f1d1d", max: Infinity },
+  ],
+};
+
+// Normalise pollutant id to match threshold keys (dots → p)
+function thresholdKey(id) {
+  return id.replace(/\./g, 'p');
+}
+
+function getThresholds(pollutantId) {
+  return AQI_THRESHOLDS[thresholdKey(pollutantId)] || null;
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
 const state = {
-  sites:       [],
-  pollutants:  [],
-  times:       [],
-  site:        "Warszawa",
-  pollutant:   null,
-  timeIndex:   0,
+  sites:      [],
+  pollutants: [],
+  times:      [],
+  site:       "Warszawa",
+  pollutant:  null,
+  timeIndex:  0,
 };
 
 let map, overlayLayer, siteMarker;
 
-// ── Init ─────────────────────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────────────────
 async function init() {
   initMap();
   await Promise.all([loadStatus(), loadSites(), loadPollutants(), loadTimes()]);
 
-  // Set defaults
   state.pollutant = state.pollutants.find(p => p.id === "particulate_matter_10um")?.id
                  || state.pollutants[0]?.id;
 
   renderPollutantSelect();
-  renderTimeSelect();
   renderSiteList("");
-
-  selectSite(state.site, false);   // false = don't update yet, wait for first full render
+  selectSite(state.site, false);
   await updateAll();
 
   document.getElementById("loading").classList.add("hidden");
 }
 
-// ── Map setup ────────────────────────────────────────────────────────────────
+// ── Map ───────────────────────────────────────────────────────────────────────
 function initMap() {
-  map = L.map("map", { zoomControl: true }).setView([51.9, 19.1], 6);
-
+  map = L.map("map", { zoomControl: true }).setView([52.0, 19.5], 6);
   L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
     attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
     maxZoom: 19,
   }).addTo(map);
 }
 
-// ── Data loaders ─────────────────────────────────────────────────────────────
+// ── Loaders ───────────────────────────────────────────────────────────────────
 async function loadStatus() {
-  const r = await fetch("/api/status");
-  const d = await r.json();
-  const el = document.getElementById("status-date");
+  const d = await fetch("/api/status").then(r => r.json());
   if (d.date) {
-    const updated = d.downloaded_at_utc ? d.downloaded_at_utc.slice(0, 16) + " UTC" : "";
-    el.textContent = `Forecast ${d.date}${updated ? " · " + updated : ""}`;
+    const upd = d.downloaded_at_utc ? " · " + d.downloaded_at_utc.slice(0, 16) + " UTC" : "";
+    document.getElementById("status-date").textContent = `Forecast ${d.date}${upd}`;
   }
 }
 
-async function loadSites() {
-  const r = await fetch("/api/sites");
-  state.sites = await r.json();
-}
-
-async function loadPollutants() {
-  const r = await fetch("/api/pollutants");
-  state.pollutants = await r.json();
-}
-
+async function loadSites()      { state.sites      = await fetch("/api/sites").then(r => r.json()); }
+async function loadPollutants() { state.pollutants = await fetch("/api/pollutants").then(r => r.json()); }
 async function loadTimes() {
-  const r = await fetch("/api/times");
-  const d = await r.json();
-  state.times = d.times;
-  state.timeIndex = d.default_index;
+  const d = await fetch("/api/times").then(r => r.json());
+  state.times      = d.times;
+  state.timeIndex  = d.default_index;
 }
 
 // ── Render controls ───────────────────────────────────────────────────────────
@@ -592,20 +557,14 @@ function renderPollutantSelect() {
   ).join("");
 }
 
-function renderTimeSelect() {
-  const sel = document.getElementById("time-select");
-  sel.innerHTML = state.times.map((t, i) =>
-    `<option value="${i}" ${i === state.timeIndex ? "selected" : ""}>${t}</option>`
-  ).join("");
-}
-
 function renderSiteList(filter) {
   const ul = document.getElementById("site-list");
-  const f = filter.toLowerCase();
-  const filtered = state.sites.filter(s => s.name.toLowerCase().includes(f));
+  const f  = filter.toLowerCase();
+  const filtered = state.sites.filter(s => s.name.toLowerCase().includes(f)).slice(0, 80);
   ul.innerHTML = filtered.map(s =>
-    `<li class="${s.name === state.site ? "active" : ""}"
-         onclick="selectSite('${s.name}')">${s.name}</li>`
+    `<li class="${s.name === state.site ? "active" : ""}" onclick="selectSite('${s.name.replace(/'/g,"\\'")}')">
+      ${s.name}
+    </li>`
   ).join("");
 }
 
@@ -616,16 +575,11 @@ function selectSite(name, update = true) {
   state.site = name;
   renderSiteList(document.getElementById("site-search").value);
 
-  // Move marker
   const site = state.sites.find(s => s.name === name);
   if (site) {
     if (siteMarker) map.removeLayer(siteMarker);
     siteMarker = L.circleMarker([site.lat, site.lon], {
-      radius: 8,
-      fillColor: "#38bdf8",
-      color: "#fff",
-      weight: 2,
-      fillOpacity: 0.9,
+      radius: 8, fillColor: "#38bdf8", color: "#fff", weight: 2, fillOpacity: 0.9,
     }).addTo(map).bindPopup(`<b>${name}</b>`);
     map.panTo([site.lat, site.lon]);
   }
@@ -638,65 +592,42 @@ function onPollutantChange() {
   updateAll();
 }
 
-function onTimeChange() {
-  state.timeIndex = parseInt(document.getElementById("time-select").value);
-  updateMapOverlay();
-  updateCurrentConditions();
-}
-
-async function refreshData() {
-  document.getElementById("loading").classList.remove("hidden");
-  await fetch("/api/refresh", { method: "POST" });
-  await init();
-}
-
-// ── Update functions ──────────────────────────────────────────────────────────
+// ── Update ────────────────────────────────────────────────────────────────────
 async function updateAll() {
-  await Promise.all([
-    updateMapOverlay(),
-    updateForecastChart(),
-    updateCurrentConditions(),
-  ]);
+  await Promise.all([updateMapOverlay(), updateForecastChart(), updateCurrentConditions()]);
 }
 
 async function updateMapOverlay() {
   if (!state.pollutant) return;
-
   const r = await fetch(`/api/map/${state.pollutant}/${state.timeIndex}`);
   if (!r.ok) return;
   const d = await r.json();
 
-  // Remove old overlay
   if (overlayLayer) map.removeLayer(overlayLayer);
-
   overlayLayer = L.imageOverlay(d.image, d.bounds, { opacity: 0.7 }).addTo(map);
 
-  // Update colorbar
+  const info = state.pollutants.find(p => p.id === state.pollutant);
   document.getElementById("colorbar-label").textContent =
-    `${state.pollutants.find(p => p.id === state.pollutant)?.species || state.pollutant} (${d.units})`;
+    `${info?.species || state.pollutant} (${d.units})`;
   document.getElementById("cb-min").textContent = d.vmin.toFixed(2);
   document.getElementById("cb-max").textContent = d.vmax.toFixed(2);
 }
 
 async function updateForecastChart() {
   if (!state.pollutant || !state.site) return;
-
   const r = await fetch(`/api/forecast/${encodeURIComponent(state.site)}/${state.pollutant}`);
   if (!r.ok) return;
   const d = await r.json();
 
-  const pollutantInfo = state.pollutants.find(p => p.id === state.pollutant);
-  const label = pollutantInfo?.species || state.pollutant;
-  const units = d.units || "";
+  const info   = state.pollutants.find(p => p.id === state.pollutant);
+  const label  = info?.species || state.pollutant;
+  const units  = d.units || "";
+  const thresh = getThresholds(state.pollutant);
 
-  // Current time marker
-  const nowLine = state.times[state.timeIndex];
-
+  // Main trace
   const trace = {
-    x: d.times,
-    y: d.values,
-    type: "scatter",
-    mode: "lines",
+    x: d.times, y: d.values,
+    type: "scatter", mode: "lines",
     name: label,
     line: { color: "#38bdf8", width: 2.5, shape: "spline" },
     fill: "tozeroy",
@@ -704,11 +635,60 @@ async function updateForecastChart() {
     hovertemplate: `%{x}<br><b>%{y:.3f}</b> ${units}<extra></extra>`,
   };
 
+  // AQI threshold horizontal lines
+  const shapes = [];
+  const annotations = [];
+
+  if (thresh) {
+    const yMax = Math.max(...d.values.filter(v => v != null));
+
+    thresh.forEach(band => {
+      if (band.max === Infinity) return;
+      // Only draw if threshold is within visible range (a bit above zero)
+      if (band.max > yMax * 2) return;
+
+      shapes.push({
+        type: "line",
+        x0: d.times[0], x1: d.times[d.times.length - 1],
+        y0: band.max, y1: band.max,
+        line: { color: band.color, width: 1, dash: "dot" },
+      });
+
+      annotations.push({
+        x: d.times[d.times.length - 1],
+        y: band.max,
+        xanchor: "right",
+        yanchor: "bottom",
+        text: band.label,
+        showarrow: false,
+        font: { color: band.color, size: 9, family: "DM Sans" },
+        bgcolor: "rgba(8,12,20,0.7)",
+        borderpad: 2,
+      });
+    });
+  }
+
+  // "Now" vertical marker
+  const nowTime = state.times[state.timeIndex];
+  if (nowTime) {
+    shapes.push({
+      type: "line",
+      x0: nowTime, x1: nowTime, y0: 0, y1: 1, yref: "paper",
+      line: { color: "#818cf8", width: 1.5, dash: "dot" },
+    });
+    annotations.push({
+      x: nowTime, y: 1, yref: "paper",
+      text: "now", showarrow: false,
+      font: { color: "#818cf8", size: 9 },
+      yshift: 6,
+    });
+  }
+
   const layout = {
     paper_bgcolor: "transparent",
     plot_bgcolor:  "transparent",
     font: { family: "DM Sans, sans-serif", color: "#94a3b8", size: 11 },
-    margin: { t: 10, r: 10, b: 50, l: 55 },
+    margin: { t: 10, r: 120, b: 50, l: 55 },
     xaxis: {
       gridcolor: "rgba(255,255,255,0.05)",
       linecolor: "rgba(255,255,255,0.08)",
@@ -718,69 +698,50 @@ async function updateForecastChart() {
       gridcolor: "rgba(255,255,255,0.05)",
       linecolor: "rgba(255,255,255,0.08)",
       title: { text: units, font: { size: 10 } },
+      rangemode: "nonnegative",
     },
-    shapes: nowLine ? [{
-      type: "line",
-      x0: nowLine, x1: nowLine,
-      y0: 0, y1: 1,
-      yref: "paper",
-      line: { color: "#818cf8", width: 1.5, dash: "dot" },
-    }] : [],
-    annotations: nowLine ? [{
-      x: nowLine, y: 1, yref: "paper",
-      text: "now", showarrow: false,
-      font: { color: "#818cf8", size: 9 },
-      yshift: 6,
-    }] : [],
+    shapes,
+    annotations,
     showlegend: false,
     hovermode: "x unified",
   };
 
-  const config = { displayModeBar: false, responsive: true };
-
   document.getElementById("chart-title").textContent =
     `97-hour Forecast · ${state.site} · ${label}`;
 
-  Plotly.react("forecast-chart", [trace], layout, config);
+  Plotly.react("forecast-chart", [trace], layout, { displayModeBar: false, responsive: true });
 }
 
 async function updateCurrentConditions() {
   if (!state.site) return;
-
   const r = await fetch(`/api/current/${encodeURIComponent(state.site)}/${state.timeIndex}`);
   if (!r.ok) return;
   const d = await r.json();
 
-  // Conditions grid
   const grid = document.getElementById("conditions-grid");
   const entries = Object.entries(d.pollutants);
-  if (entries.length === 0) {
-    grid.innerHTML = `<div style="color:var(--muted);font-size:0.8rem">No data available</div>`;
-  } else {
-    grid.innerHTML = entries.map(([label, info]) => `
-      <div class="cond-item">
-        <div class="cond-label">${label}</div>
-        <div class="cond-value">${info.value.toFixed(2)}<span class="cond-unit"> ${info.units}</span></div>
-      </div>
-    `).join("");
-  }
+  grid.innerHTML = entries.length === 0
+    ? `<div style="color:var(--muted);font-size:0.8rem">No data available</div>`
+    : entries.map(([lbl, info]) => `
+        <div class="cond-item">
+          <div class="cond-label">${lbl}</div>
+          <div class="cond-value">${info.value.toFixed(2)}<span class="cond-unit"> ${info.units}</span></div>
+        </div>`).join("");
 
-  // AQI
   const badge = document.getElementById("aqi-badge");
   if (d.aqi) {
     badge.style.display = "flex";
     badge.style.borderColor = d.aqi.color + "55";
-    badge.style.background = d.aqi.color + "18";
+    badge.style.background  = d.aqi.color + "18";
     document.getElementById("aqi-number").textContent = d.aqi.value;
     document.getElementById("aqi-number").style.color = d.aqi.color;
-    document.getElementById("aqi-cat").textContent = d.aqi.category;
-    document.getElementById("aqi-cat").style.color = d.aqi.color;
+    document.getElementById("aqi-cat").textContent    = d.aqi.category;
+    document.getElementById("aqi-cat").style.color    = d.aqi.color;
   } else {
     badge.style.display = "none";
   }
 }
 
-// ── Boot ──────────────────────────────────────────────────────────────────────
 window.addEventListener("load", init);
 </script>
 </body>
