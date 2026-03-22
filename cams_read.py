@@ -12,31 +12,26 @@ import logging
 import os
 from datetime import datetime, timezone
 from io import BytesIO
+from functools import lru_cache
 
 import numpy as np
 import pandas as pd
 import requests
 import xarray as xr
-import streamlit as st
 
 log = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # GitHub Release URLs
-# The "latest-data" tag is recreated daily by the Actions workflow.
-# These are stable, public HTTPS URLs — no auth needed for public repos.
 # ---------------------------------------------------------------------------
 
 def _base_url() -> str:
     """
     Build the GitHub Release asset base URL.
-    Reads GITHUB_REPO from st.secrets or environment variable.
-    Format: "owner/repo-name"  e.g. "jan-kowalski/air-quality-app"
+    Reads GITHUB_REPO from environment variable.
+    Format: "owner/repo-name"  e.g. "szymkas02-coder/Air_quality_app_flask"
     """
-    try:
-        repo = st.secrets["GITHUB_REPO"]
-    except Exception:
-        repo = os.environ["GITHUB_REPO"]
+    repo = os.environ["GITHUB_REPO"]
     return f"https://github.com/{repo}/releases/download/latest-data"
 
 
@@ -45,7 +40,7 @@ META_FILENAME = "cams_meta.json"
 
 
 # ---------------------------------------------------------------------------
-# Post-processing (unchanged from original cams_read.py)
+# Post-processing
 # ---------------------------------------------------------------------------
 
 def _add_absolute_time(ds: xr.Dataset) -> xr.Dataset:
@@ -95,7 +90,6 @@ def _postprocess(ds: xr.Dataset) -> xr.Dataset:
 # ---------------------------------------------------------------------------
 
 def _fetch_bytes(url: str, label: str) -> bytes:
-    """Download a file from a URL with a simple progress message."""
     log.info(f"Fetching {label} from {url}")
     resp = requests.get(url, timeout=120)
     resp.raise_for_status()
@@ -104,7 +98,7 @@ def _fetch_bytes(url: str, label: str) -> bytes:
 
 
 def get_latest_forecast_meta() -> dict | None:
-    """Return the metadata dict (date, downloaded_at_utc) or None on error."""
+    """Return metadata dict (date, downloaded_at_utc) or None on error."""
     try:
         url = f"{_base_url()}/{META_FILENAME}"
         return json.loads(_fetch_bytes(url, "metadata"))
@@ -117,18 +111,14 @@ def get_latest_forecast_meta() -> dict | None:
 # Main entry point
 # ---------------------------------------------------------------------------
 
-@st.cache_resource(show_spinner=False)
 def get_cams_air_quality() -> tuple[xr.Dataset | None, str | None]:
     """
     Download the pre-built CAMS NetCDF from the GitHub Release and return
     a processed xarray Dataset.
 
     Returns (ds, date_str) or (None, None) on failure.
-    Cached for the lifetime of the Streamlit server process.
-    Call st.cache_resource.clear() to force a refresh.
+    Caching is handled in app.py at the module level.
     """
-    st.info("☁️ Loading CAMS data from GitHub Release...")
-
     try:
         nc_url = f"{_base_url()}/{NC_FILENAME}"
         nc_bytes = _fetch_bytes(nc_url, "NetCDF")
@@ -139,9 +129,13 @@ def get_cams_air_quality() -> tuple[xr.Dataset | None, str | None]:
         meta = get_latest_forecast_meta()
         date_str = meta["date"] if meta else datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
-        st.success(f"✅ CAMS data loaded — forecast date: {date_str}")
+        log.info(f"CAMS data loaded — forecast date: {date_str}")
         return ds, date_str
 
+    except Exception:
+        import traceback
+        log.error(f"Failed to load CAMS data:\n{traceback.format_exc()}")
+        return None, None
     except Exception:
         import traceback
         st.error(f"❌ Failed to load CAMS data:\n{traceback.format_exc()}")
