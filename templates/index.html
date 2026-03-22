@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Air Quality Forecast · Poland</title>
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <!-- Plotly -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.32.0/plotly.min.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Reset & base ───────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #080c14;
+      --bg2:       #0d1220;
+      --surface:   rgba(255,255,255,0.05);
+      --border:    rgba(255,255,255,0.10);
+      --accent:    #38bdf8;
+      --accent2:   #818cf8;
+      --good:      #22c55e;
+      --moderate:  #eab308;
+      --bad:       #ef4444;
+      --text:      #e2e8f0;
+      --muted:     #64748b;
+      --radius:    16px;
+      --blur:      blur(18px);
+      --font-head: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── Animated mesh background ───────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%,  rgba(56,189,248,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 80%,  rgba(129,140,248,0.10) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 60% 30%,  rgba(34,197,94,0.06)  0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Layout ─────────────────────────────────────────────────────────── */
+    #root {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      grid-template-columns: 300px 1fr;
+      grid-template-areas:
+        "header header"
+        "sidebar main"
+        "footer footer";
+    }
+
+    /* ── Glass mixin ─────────────────────────────────────────────────────── */
+    .glass {
+      background: var(--surface);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    /* ── Header ─────────────────────────────────────────────────────────── */
+    header {
+      grid-area: header;
+      padding: 1.2rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8,12,20,0.7);
+      backdrop-filter: var(--blur);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: var(--font-head);
+      font-weight: 800;
+      font-size: 1.3rem;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .logo span { font-weight: 400; opacity: 0.6; -webkit-text-fill-color: var(--muted); }
+
+    #status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--good);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+
+    #refresh-btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 6px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    #refresh-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    #refresh-btn:active { transform: translateY(0); }
+
+    /* ── Sidebar ─────────────────────────────────────────────────────────── */
+    aside {
+      grid-area: sidebar;
+      padding: 1.5rem 1rem;
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .panel-title {
+      font-family: var(--font-head);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Search */
+    #site-search {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #site-search:focus { border-color: var(--accent); }
+    #site-search::placeholder { color: var(--muted); }
+
+    /* Site list */
+    #site-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    #site-list li {
+      padding: 7px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: background 0.15s, color 0.15s;
+      border: 1px solid transparent;
+    }
+    #site-list li:hover { background: var(--surface); }
+    #site-list li.active {
+      background: rgba(56,189,248,0.12);
+      border-color: rgba(56,189,248,0.3);
+      color: var(--accent);
+    }
+
+    /* Select dropdowns */
+    .styled-select {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+    }
+    .styled-select:focus { border-color: var(--accent); }
+    .styled-select option { background: var(--bg2); }
+
+    /* Current conditions card */
+    #conditions-card {
+      padding: 1rem;
+    }
+
+    .conditions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 0.6rem;
+    }
+
+    .cond-item {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+
+    .cond-label {
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .cond-value {
+      font-family: var(--font-head);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .cond-unit {
+      font-size: 0.65rem;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    /* AQI badge */
+    #aqi-badge {
+      margin-top: 0.8rem;
+      padding: 0.9rem 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .aqi-number {
+      font-family: var(--font-head);
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .aqi-label { font-size: 0.8rem; color: var(--muted); }
+    .aqi-cat   { font-size: 0.9rem; font-weight: 600; }
+
+    /* ── Main content ────────────────────────────────────────────────────── */
+    main {
+      grid-area: main;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      overflow-y: auto;
+    }
+
+    /* Map */
+    #map-wrapper {
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      height: 420px;
+    }
+
+    #map { height: 100%; width: 100%; }
+
+    /* Colorbar */
+    #colorbar {
+      position: absolute;
+      bottom: 20px;
+      right: 16px;
+      z-index: 1000;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(8,12,20,0.75);
+      backdrop-filter: var(--blur);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 150px;
+    }
+
+    #colorbar-label { font-size: 0.7rem; color: var(--muted); text-align: center; }
+
+    #colorbar-bar {
+      height: 10px;
+      border-radius: 5px;
+      background: linear-gradient(to right, #ffffb2, #fecc5c, #fd8d3c, #f03b20, #bd0026);
+    }
+
+    .colorbar-range {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    /* Chart */
+    #chart-wrapper {
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      backdrop-filter: var(--blur);
+      padding: 1rem 1rem 0.5rem;
+    }
+
+    #chart-title {
+      font-family: var(--font-head);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    #forecast-chart { width: 100%; height: 260px; }
+
+    /* ── Footer ──────────────────────────────────────────────────────────── */
+    footer {
+      grid-area: footer;
+      text-align: center;
+      padding: 0.8rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+
+    /* ── Loading overlay ─────────────────────────────────────────────────── */
+    #loading {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      gap: 1rem;
+      transition: opacity 0.5s;
+    }
+
+    #loading.hidden { opacity: 0; pointer-events: none; }
+
+    .spinner {
+      width: 48px; height: 48px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-family: var(--font-head);
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    /* ── Scrollbar ───────────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+    /* ── Responsive ──────────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      #root {
+        grid-template-columns: 1fr;
+        grid-template-areas: "header" "main" "sidebar" "footer";
+      }
+      aside { border-right: none; border-top: 1px solid var(--border); }
+      #map-wrapper { height: 300px; }
+    }
+  </style>
+</head>
+
+<body>
+<!-- Loading screen -->
+<div id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text">Loading CAMS forecast data…</div>
+</div>
+
+<div id="root">
+
+  <!-- ── Header ── -->
+  <header>
+    <div class="logo">AirWatch <span>Poland</span></div>
+    <div id="status-badge">
+      <div class="dot"></div>
+      <span id="status-date">–</span>
+    </div>
+    <button id="refresh-btn" onclick="refreshData()">↺ Refresh</button>
+  </header>
+
+  <!-- ── Sidebar ── -->
+  <aside>
+
+    <div>
+      <div class="panel-title">Pollutant</div>
+      <select id="pollutant-select" class="styled-select" onchange="onPollutantChange()"></select>
+    </div>
+
+    <div>
+      <div class="panel-title">Forecast Time</div>
+      <select id="time-select" class="styled-select" onchange="onTimeChange()"></select>
+    </div>
+
+    <div>
+      <div class="panel-title">Location</div>
+      <input id="site-search" type="text" placeholder="Search city…" oninput="filterSites(this.value)" />
+      <ul id="site-list" style="margin-top:6px"></ul>
+    </div>
+
+    <div id="conditions-card" class="glass">
+      <div class="panel-title">Current Conditions</div>
+      <div class="conditions-grid" id="conditions-grid">
+        <div class="cond-item"><div class="cond-label">–</div><div class="cond-value">–</div></div>
+      </div>
+      <div id="aqi-badge" style="display:none">
+        <div>
+          <div class="aqi-label">Air Quality Index</div>
+          <div class="aqi-number" id="aqi-number">–</div>
+          <div class="aqi-cat" id="aqi-cat">–</div>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── Main ── -->
+  <main>
+
+    <div id="map-wrapper">
+      <div id="map"></div>
+      <div id="colorbar">
+        <div id="colorbar-label">–</div>
+        <div id="colorbar-bar"></div>
+        <div class="colorbar-range">
+          <span id="cb-min">0</span>
+          <span id="cb-max">1</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="chart-wrapper">
+      <div id="chart-title">97-hour Forecast</div>
+      <div id="forecast-chart"></div>
+    </div>
+
+  </main>
+
+  <!-- ── Footer ── -->
+  <footer>
+    Data: <a href="https://atmosphere.copernicus.eu/" target="_blank">CAMS European Air Quality Forecasts</a>
+    &nbsp;·&nbsp;
+    Licence: <a href="https://apps.ecmwf.int/datasets/licences/copernicus/" target="_blank">Copernicus Licence</a>
+  </footer>
+
+</div>
+
+<script>
+// ── State ────────────────────────────────────────────────────────────────────
+const state = {
+  sites:       [],
+  pollutants:  [],
+  times:       [],
+  site:        "Warszawa",
+  pollutant:   null,
+  timeIndex:   0,
+};
+
+let map, overlayLayer, siteMarker;
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+async function init() {
+  initMap();
+  await Promise.all([loadStatus(), loadSites(), loadPollutants(), loadTimes()]);
+
+  // Set defaults
+  state.pollutant = state.pollutants.find(p => p.id === "particulate_matter_10um")?.id
+                 || state.pollutants[0]?.id;
+
+  renderPollutantSelect();
+  renderTimeSelect();
+  renderSiteList("");
+
+  selectSite(state.site, false);   // false = don't update yet, wait for first full render
+  await updateAll();
+
+  document.getElementById("loading").classList.add("hidden");
+}
+
+// ── Map setup ────────────────────────────────────────────────────────────────
+function initMap() {
+  map = L.map("map", { zoomControl: true }).setView([51.9, 19.1], 6);
+
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+    maxZoom: 19,
+  }).addTo(map);
+}
+
+// ── Data loaders ─────────────────────────────────────────────────────────────
+async function loadStatus() {
+  const r = await fetch("/api/status");
+  const d = await r.json();
+  const el = document.getElementById("status-date");
+  if (d.date) {
+    const updated = d.downloaded_at_utc ? d.downloaded_at_utc.slice(0, 16) + " UTC" : "";
+    el.textContent = `Forecast ${d.date}${updated ? " · " + updated : ""}`;
+  }
+}
+
+async function loadSites() {
+  const r = await fetch("/api/sites");
+  state.sites = await r.json();
+}
+
+async function loadPollutants() {
+  const r = await fetch("/api/pollutants");
+  state.pollutants = await r.json();
+}
+
+async function loadTimes() {
+  const r = await fetch("/api/times");
+  const d = await r.json();
+  state.times = d.times;
+  state.timeIndex = d.default_index;
+}
+
+// ── Render controls ───────────────────────────────────────────────────────────
+function renderPollutantSelect() {
+  const sel = document.getElementById("pollutant-select");
+  sel.innerHTML = state.pollutants.map(p =>
+    `<option value="${p.id}" ${p.id === state.pollutant ? "selected" : ""}>${p.label}</option>`
+  ).join("");
+}
+
+function renderTimeSelect() {
+  const sel = document.getElementById("time-select");
+  sel.innerHTML = state.times.map((t, i) =>
+    `<option value="${i}" ${i === state.timeIndex ? "selected" : ""}>${t}</option>`
+  ).join("");
+}
+
+function renderSiteList(filter) {
+  const ul = document.getElementById("site-list");
+  const f = filter.toLowerCase();
+  const filtered = state.sites.filter(s => s.name.toLowerCase().includes(f));
+  ul.innerHTML = filtered.map(s =>
+    `<li class="${s.name === state.site ? "active" : ""}"
+         onclick="selectSite('${s.name}')">${s.name}</li>`
+  ).join("");
+}
+
+function filterSites(val) { renderSiteList(val); }
+
+// ── User actions ──────────────────────────────────────────────────────────────
+function selectSite(name, update = true) {
+  state.site = name;
+  renderSiteList(document.getElementById("site-search").value);
+
+  // Move marker
+  const site = state.sites.find(s => s.name === name);
+  if (site) {
+    if (siteMarker) map.removeLayer(siteMarker);
+    siteMarker = L.circleMarker([site.lat, site.lon], {
+      radius: 8,
+      fillColor: "#38bdf8",
+      color: "#fff",
+      weight: 2,
+      fillOpacity: 0.9,
+    }).addTo(map).bindPopup(`<b>${name}</b>`);
+    map.panTo([site.lat, site.lon]);
+  }
+
+  if (update) updateAll();
+}
+
+function onPollutantChange() {
+  state.pollutant = document.getElementById("pollutant-select").value;
+  updateAll();
+}
+
+function onTimeChange() {
+  state.timeIndex = parseInt(document.getElementById("time-select").value);
+  updateMapOverlay();
+  updateCurrentConditions();
+}
+
+async function refreshData() {
+  document.getElementById("loading").classList.remove("hidden");
+  await fetch("/api/refresh", { method: "POST" });
+  await init();
+}
+
+// ── Update functions ──────────────────────────────────────────────────────────
+async function updateAll() {
+  await Promise.all([
+    updateMapOverlay(),
+    updateForecastChart(),
+    updateCurrentConditions(),
+  ]);
+}
+
+async function updateMapOverlay() {
+  if (!state.pollutant) return;
+
+  const r = await fetch(`/api/map/${state.pollutant}/${state.timeIndex}`);
+  if (!r.ok) return;
+  const d = await r.json();
+
+  // Remove old overlay
+  if (overlayLayer) map.removeLayer(overlayLayer);
+
+  overlayLayer = L.imageOverlay(d.image, d.bounds, { opacity: 0.7 }).addTo(map);
+
+  // Update colorbar
+  document.getElementById("colorbar-label").textContent =
+    `${state.pollutants.find(p => p.id === state.pollutant)?.species || state.pollutant} (${d.units})`;
+  document.getElementById("cb-min").textContent = d.vmin.toFixed(2);
+  document.getElementById("cb-max").textContent = d.vmax.toFixed(2);
+}
+
+async function updateForecastChart() {
+  if (!state.pollutant || !state.site) return;
+
+  const r = await fetch(`/api/forecast/${encodeURIComponent(state.site)}/${state.pollutant}`);
+  if (!r.ok) return;
+  const d = await r.json();
+
+  const pollutantInfo = state.pollutants.find(p => p.id === state.pollutant);
+  const label = pollutantInfo?.species || state.pollutant;
+  const units = d.units || "";
+
+  // Current time marker
+  const nowLine = state.times[state.timeIndex];
+
+  const trace = {
+    x: d.times,
+    y: d.values,
+    type: "scatter",
+    mode: "lines",
+    name: label,
+    line: { color: "#38bdf8", width: 2.5, shape: "spline" },
+    fill: "tozeroy",
+    fillcolor: "rgba(56,189,248,0.08)",
+    hovertemplate: `%{x}<br><b>%{y:.3f}</b> ${units}<extra></extra>`,
+  };
+
+  const layout = {
+    paper_bgcolor: "transparent",
+    plot_bgcolor:  "transparent",
+    font: { family: "DM Sans, sans-serif", color: "#94a3b8", size: 11 },
+    margin: { t: 10, r: 10, b: 50, l: 55 },
+    xaxis: {
+      gridcolor: "rgba(255,255,255,0.05)",
+      linecolor: "rgba(255,255,255,0.08)",
+      tickfont: { size: 10 },
+    },
+    yaxis: {
+      gridcolor: "rgba(255,255,255,0.05)",
+      linecolor: "rgba(255,255,255,0.08)",
+      title: { text: units, font: { size: 10 } },
+    },
+    shapes: nowLine ? [{
+      type: "line",
+      x0: nowLine, x1: nowLine,
+      y0: 0, y1: 1,
+      yref: "paper",
+      line: { color: "#818cf8", width: 1.5, dash: "dot" },
+    }] : [],
+    annotations: nowLine ? [{
+      x: nowLine, y: 1, yref: "paper",
+      text: "now", showarrow: false,
+      font: { color: "#818cf8", size: 9 },
+      yshift: 6,
+    }] : [],
+    showlegend: false,
+    hovermode: "x unified",
+  };
+
+  const config = { displayModeBar: false, responsive: true };
+
+  document.getElementById("chart-title").textContent =
+    `97-hour Forecast · ${state.site} · ${label}`;
+
+  Plotly.react("forecast-chart", [trace], layout, config);
+}
+
+async function updateCurrentConditions() {
+  if (!state.site) return;
+
+  const r = await fetch(`/api/current/${encodeURIComponent(state.site)}/${state.timeIndex}`);
+  if (!r.ok) return;
+  const d = await r.json();
+
+  // Conditions grid
+  const grid = document.getElementById("conditions-grid");
+  const entries = Object.entries(d.pollutants);
+  if (entries.length === 0) {
+    grid.innerHTML = `<div style="color:var(--muted);font-size:0.8rem">No data available</div>`;
+  } else {
+    grid.innerHTML = entries.map(([label, info]) => `
+      <div class="cond-item">
+        <div class="cond-label">${label}</div>
+        <div class="cond-value">${info.value.toFixed(2)}<span class="cond-unit"> ${info.units}</span></div>
+      </div>
+    `).join("");
+  }
+
+  // AQI
+  const badge = document.getElementById("aqi-badge");
+  if (d.aqi) {
+    badge.style.display = "flex";
+    badge.style.borderColor = d.aqi.color + "55";
+    badge.style.background = d.aqi.color + "18";
+    document.getElementById("aqi-number").textContent = d.aqi.value;
+    document.getElementById("aqi-number").style.color = d.aqi.color;
+    document.getElementById("aqi-cat").textContent = d.aqi.category;
+    document.getElementById("aqi-cat").style.color = d.aqi.color;
+  } else {
+    badge.style.display = "none";
+  }
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+window.addEventListener("load", init);
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+# .github/workflows/download_cams.yml
+#
+# Runs daily at 10:30 UTC. Downloads CAMS forecast and publishes it
+# as a GitHub Release asset (tag: "latest-data").
+# The Streamlit app then downloads the .nc file via a plain HTTPS URL.
+
+name: Download CAMS forecast → GitHub Release
+
+on:
+  schedule:
+    - cron: "30 10 * * *"   # 10:30 UTC daily
+  workflow_dispatch:         # manual trigger for testing
+
+permissions:
+  contents: write            # needed to create/update releases
+
+jobs:
+  download-and-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install cdsapi
+
+      - name: Download CAMS data
+        env:
+          CDSAPI_URL: ${{ secrets.CDSAPI_URL }}
+          CDSAPI_KEY: ${{ secrets.CDSAPI_KEY }}
+        run: python scripts/download_cams.py
+
+      - name: Delete existing "latest-data" release (if present)
+        # We reuse the same tag every day so the app always has one stable URL.
+        # gh will error if the release doesn't exist yet — the || true handles that.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete latest-data --yes --cleanup-tag || true
+
+      - name: Create new "latest-data" release and upload assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create latest-data \
+            --title "Latest CAMS forecast" \
+            --notes "Auto-updated daily by GitHub Actions." \
+            cams_latest.nc \
+            cams_meta.json
