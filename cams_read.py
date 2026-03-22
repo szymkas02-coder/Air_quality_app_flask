@@ -136,7 +136,3 @@ def get_cams_air_quality() -> tuple[xr.Dataset | None, str | None]:
         import traceback
         log.error(f"Failed to load CAMS data:\n{traceback.format_exc()}")
         return None, None
-    except Exception:
-        import traceback
-        st.error(f"❌ Failed to load CAMS data:\n{traceback.format_exc()}")
-        return None, None
