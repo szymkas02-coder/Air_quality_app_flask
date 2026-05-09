@@ -2,6 +2,10 @@
 
 A Flask-based web dashboard for visualising real-time and forecast air quality across Poland, powered by CAMS (Copernicus Atmosphere Monitoring Service) data.
 
+## Live Demo
+
+[air-quality-app-flask.onrender.com](https://air-quality-app-flask.onrender.com)
+
 ## Features
 
 - REST API backend serving pollutant map overlays and per-site forecast time-series
@@ -34,4 +38,4 @@ pip install -r requirements.txt
 flask run
 ```
 
-> CAMS data is loaded from a GitHub Release asset via . CDS API credentials are required for live data.
+> CAMS data is loaded from a GitHub Release asset via `cams_read.py`. CDS API credentials are required for live data.
